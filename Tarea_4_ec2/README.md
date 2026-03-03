@@ -9,40 +9,40 @@ Esta tarea pone a prueba los conceptos revisados de MLOps, Docker, Git Workflow 
 ## Estructura del repositorio
 .
 ├── artifacts
-│   ├── logs
-│   │   ├── prep_20260302_043537.log
-│   │   ├── prep_20260302_044034.log
-│   │   ├── prep_20260302_044117.log
-│   │   └── prep_20260302_044526.log
-│   └── model.joblib
+│   ├── logs
+│   │   ├── prep_20260302_043537.log
+│   │   ├── prep_20260302_044034.log
+│   │   ├── prep_20260302_044117.log
+│   │   └── prep_20260302_044526.log
+│   └── model.joblib
 ├── data
-│   ├── images
-│   ├── inference
-│   │   └── test.csv
-│   ├── predictions
-│   │   └── Prediccion_Equipo2.csv
-│   ├── prep
-│   │   └── monthly_sales.csv
-│   └── raw
-│       ├── sales_train.csv
-│       ├── sample_submission.csv
-│       └── test.csv
+│   ├── images
+│   ├── inference
+│   │   └── test.csv
+│   ├── predictions
+│   │   └── Prediccion_Equipo2.csv
+│   ├── prep
+│   │   └── monthly_sales.csv
+│   └── raw
+│       ├── sales_train.csv
+│       ├── sample_submission.csv
+│       └── test.csv
 ├── requirements.txt
 └── src
     ├── inference
-    │   ├── Dockerfile
-    │   ├── inference.py
-    │   └── test
-    │       └── test_inference.py
+    │   ├── Dockerfile
+    │   ├── inference.py
+    │   └── test
+    │       └── test_inference.py
     ├── preprocessing
-    │   ├── Dockerfile
-    │   ├── prep.py
-    │   └── test
-    │       └── test_preprocessing.py
+    │   ├── Dockerfile
+    │   ├── prep.py
+    │   └── test
+    │       └── test_preprocessing.py
     └── training
         ├── Dockerfile
         ├── test
-        │   └── test_train.py
+        │   └── test_train.py
         └── train.py
 
 ## Git Workflow
