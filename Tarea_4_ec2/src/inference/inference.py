@@ -10,6 +10,7 @@ Argumentos de línea de comandos:
     --out (str): Ruta de destino para el archivo de predicciones finales.
     --date_block_num (int): Identificador del bloque mensual para la predicción (ej. 34).
 """
+## este es un cambio para el pull request
 import argparse
 from pathlib import Path
 import logging
