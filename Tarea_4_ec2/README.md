@@ -6,7 +6,10 @@ Este repositorio contiene un pipeline end-to-end de Machine Learning para pronos
 
 Esta tarea pone a prueba los conceptos revisados de MLOps, Docker, Git Workflow y Testing.
 
+---
+
 ## Estructura del repositorio
+```text
 .
 ├── artifacts
 │   ├── logs
@@ -44,10 +47,26 @@ Esta tarea pone a prueba los conceptos revisados de MLOps, Docker, Git Workflow 
         ├── test
         │   └── test_train.py
         └── train.py
+```
+---
 
 ## Git Workflow
 La presente tarea se encuentra en el repositorio llamado Tarea-3-Equipo2 en la rama `development`. En la rama `main` se encuentra la Tarea 3 que anteriormente se había entregado.
 
+Para crear las ramas y modificar el README respectivo, se usaron los siguientes comandos:
+
+```sh
+git checkout -b NOMBRE_RAMA
+git add README.md
+git commit -m "CREACIÓN DE RAMA"
+git push origin NOMBRE_RAMA
+```
+
+Las ramas de los features se crearon a partir de la rama `development`.
+
+Se realizó un cambio en la rama `features/inference`, sin embargo, este cambio no fue detectado para solicitar un pull request desde `features/inference` hacia `development`. En la siguiente imagen se observa el detalle.
+
+![github_pull](data/images/github_pull.png)
 
 ## Instalación y setup
 Toda la tarea se programó y se probó en un ambiente local usando Docker. Posteriormente, se levantó la instancia de EC2 y se ejecutaron los scripts en esta instancia. Para realizar la conexión a la instancia EC2, se usó el siguiente comando:
