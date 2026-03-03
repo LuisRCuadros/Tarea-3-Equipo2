@@ -1,7 +1,0 @@
-{
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
-    "pylint.importStrategy": "fromEnvironment",
-    "pylint.args": [
-        "--init-hook='import sys; sys.path.append(\"src\")'"
-    ]
-}
