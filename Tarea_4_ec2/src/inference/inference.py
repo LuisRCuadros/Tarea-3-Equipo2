@@ -22,6 +22,7 @@ import joblib
 # Configuración de logging
 LOG_DIR = "artifacts/logs"
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+print("Hola mundo")
 
 logging.basicConfig(
     level=logging.INFO,
