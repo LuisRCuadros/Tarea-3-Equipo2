@@ -1,4 +1,4 @@
-# Tarea 04: MLOps en Práctica — Docker, Git Workflow y Testing
+# Tarea 05: MLOps en Práctica — AWS Sagemaker
 ## Diana Arroyo / Luis Cuadros
 
 ## Descripción del proyecto
