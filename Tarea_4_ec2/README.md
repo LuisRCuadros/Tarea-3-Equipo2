@@ -69,7 +69,7 @@ La presente tarea se encuentra en el repositorio llamado Tarea-3-Equipo2 en la r
 ```sh
 git checkout feature/sagemaker-training-byoc
 git add .
-git commit -m "sagemaker-training-byoc"
+git commit -m "AWS Sagemaker"
 git push origin feature/sagemaker-training-byoc
 ```
 
@@ -89,11 +89,11 @@ bash build_and_push.sh supermarket
 
 #### Buckets
 
-El bucket en donde se instrodujo el csv de entrenamiento se llamó **sales_supermarket** y se creó a partir del script llamado `build_and_push.sh`.
+El bucket en donde se introdujo el csv de entrenamiento se llamó **sales_supermarket** y se creó a partir del script llamado `build_and_push.sh`.
 
 ![bucket1](data/images/bucket_input.png)
 
-Adicionalmente, se guardó el modelo en un bucket **output**.
+Adicionalmente, se guardó el modelo en el bucket llamado **output**.
 
 ![bucket2](data/images/bucket_output.png)
 
