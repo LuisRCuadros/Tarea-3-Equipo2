@@ -1,0 +1,129 @@
+"""
+Módulo de entrenamiento para la predicción de demanda mensual mediante XGBoost.
+
+Este script carga datos procesados de ventas, realiza una partición temporal para validación,
+entrena un modelo de regresión Gradient Boosting y persiste el artefacto resultante.
+Está diseñado para integrarse en pipelines de CI/CD o flujos de orquestación de datos.
+
+Argumentos de línea de comandos:
+    --data (str): Ruta al archivo CSV con las métricas mensuales.
+    --model_out (str): Ruta de destino para el modelo serializado (.joblib).
+    --val_block (int): Número del bloque temporal asignado para validación.
+
+Ejemplo de uso:
+    $ python train.py --data data/sales.csv --model_out models/xgb_v1.joblib
+"""
+import argparse
+from pathlib import Path
+import logging
+import time
+from datetime import datetime
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
+import numpy as np
+import pandas as pd
+import joblib
+import xgboost as xgb
+
+def create_lags(df, lags=[1, 2, 3]):
+    """
+    Crea columnas de lag para la variable 'item_cnt_month'.
+    """
+    tmp = df[['date_block_num', 'shop_id', 'item_id', 'item_cnt_month']]
+    
+    for i in lags:
+        shifted = tmp.copy()
+        shifted.columns = ['date_block_num', 'shop_id', 'item_id', f'item_cnt_month_lag_{i}']
+        # Se mueve el bloque temporal hacia adelante
+        shifted['date_block_num'] += i
+        df = pd.merge(df, shifted, on=['date_block_num', 'shop_id', 'item_id'], how='left')
+    
+    # Llenar con 0 los meses sin ventas
+    return df.fillna(0)
+
+def split_train_val_with_lags(df, val_block=33):
+    """
+    Aplica la ingeniería de variables y divide el dataset.
+    """
+    # Crea lags
+    df_with_lags = create_lags(df)
+    # Filtrado de los primeros 3 meses, para poder obtener lags
+    df_with_lags = df_with_lags[df_with_lags.date_block_num > 3]
+    # Features de lags
+    features = ['date_block_num', 'shop_id', 'item_id', 
+                'item_cnt_month_lag_1', 'item_cnt_month_lag_2', 'item_cnt_month_lag_3']
+    target = 'item_cnt_month'
+    # División temporal
+    train = df_with_lags[df_with_lags.date_block_num < val_block]
+    val = df_with_lags[df_with_lags.date_block_num == val_block]
+    return train[features], train[target], val[features], val[target]
+
+# Configuración de logging
+LOG_DIR = 'artifacts/logs'
+timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(f'{LOG_DIR}/prep_{timestamp}.log'),
+        logging.StreamHandler()  # También imprime en consola
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+def main():
+    """
+    Punto de entrada principal para el pipeline de entrenamiento.
+    
+    Realiza la mejor búsqueda de hiperparámetros de XGBoost usando Random Search
+    dentro de un espacio de búsqueda definido. Posteriormente ejecuta el ciclo de 
+    entrenamiento con early stopping y exporta el modelo tras calcular el RMSE.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data", default="data/prep/monthly_sales.csv")
+    parser.add_argument("--model_out", default="artifacts/model.joblib")
+    args = parser.parse_args()
+    logger.info("Iniciando Carga de Datos...")
+    monthly_sales = pd.read_csv(args.data)
+    logger.info("Dividiendo el set de para entrenamiento y validación...")
+    x_train, y_train, x_val, y_val = split_train_val_with_lags(monthly_sales, val_block=33)
+
+    # Definición de espacio de búsqueda de hiperparámetros
+    param_dist = {
+        'max_depth': [6, 8, 10, 12],
+        'learning_rate': [0.05, 0.1, 0.3],
+        'n_estimators': [50, 100, 200],
+        'min_child_weight': [100, 300, 500],
+        'subsample': [0.8, 1.0],
+        'colsample_bytree': [0.8, 1.0]
+    }
+    base_model = xgb.XGBRegressor(tree_method='hist', seed=53)
+    start_time = time.time()
+    # Configuración de búsqueda aleatoria
+    search = RandomizedSearchCV(
+        base_model, 
+        param_distributions=param_dist,
+        n_iter=10,
+        scoring='neg_root_mean_squared_error',
+        cv=3,     
+        verbose=1
+    )
+    logger.info("Iniciando búsqueda de hiperparámetros...")
+    search.fit(x_train, y_train)
+    best_model = search.best_estimator_
+    logger.info(f"Mejores parámetros encontrados: {search.best_params_}")
+    duration = time.time() - start_time
+    logger.info(f"Tiempo de ejecución: {duration:.2f} segundos") # pylint: disable=logging-fstring-interpolation
+
+   # Evaluación final en el set de validación
+    preds_val = best_model.predict(x_val).clip(0, 20)
+    rmse = float(np.sqrt(mean_squared_error(y_val, preds_val)))
+    print(f"[RMSE val con Lags y RS] {rmse:.4f}")
+
+    # Guardar el mejor modelo
+    joblib.dump(best_model, args.model_out)
+
+if __name__ == "__main__":
+    main()
