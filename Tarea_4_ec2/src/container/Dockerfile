@@ -14,7 +14,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Se agrega xgboost joblib
-RUN pip --no-cache-dir install numpy scipy scikit-learn pandas flask gunicorn xgboost joblib
+RUN pip --no-cache-dir install numpy=1.26.4 scipy=1.13.1 scikit-learn=1.4.2 pandas=2.2.2 flask=3.0.3 gunicorn=22.0.0 xgboost=2.0.3 joblib=1.4.2
 
 # --------------------------------------------------------------------------
 # Variables de entorno
